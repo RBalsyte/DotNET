@@ -33,6 +33,10 @@
             this.button1 = new System.Windows.Forms.Button();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.Address = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Status = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Port80 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Port8080 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.RoundTrip = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -65,14 +69,17 @@
             // 
             // dataGridView1
             // 
-            this.dataGridView1.AllowUserToDeleteRows = false;
+            this.dataGridView1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.Address});
-            this.dataGridView1.Location = new System.Drawing.Point(292, 131);
+            this.Address,
+            this.Status,
+            this.Port80,
+            this.Port8080,
+            this.RoundTrip});
+            this.dataGridView1.Location = new System.Drawing.Point(108, 96);
             this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.ReadOnly = true;
-            this.dataGridView1.Size = new System.Drawing.Size(347, 171);
+            this.dataGridView1.Size = new System.Drawing.Size(970, 423);
             this.dataGridView1.TabIndex = 3;
             // 
             // Address
@@ -80,6 +87,30 @@
             this.Address.HeaderText = "Address";
             this.Address.Name = "Address";
             this.Address.ReadOnly = true;
+            // 
+            // Status
+            // 
+            this.Status.HeaderText = "Status";
+            this.Status.Name = "Status";
+            this.Status.ReadOnly = true;
+            // 
+            // Port80
+            // 
+            this.Port80.HeaderText = "Port 80";
+            this.Port80.Name = "Port80";
+            this.Port80.ReadOnly = true;
+            // 
+            // Port8080
+            // 
+            this.Port8080.HeaderText = "Port 8080";
+            this.Port8080.Name = "Port8080";
+            this.Port8080.ReadOnly = true;
+            // 
+            // RoundTrip
+            // 
+            this.RoundTrip.HeaderText = "Round Trip Time";
+            this.RoundTrip.Name = "RoundTrip";
+            this.RoundTrip.ReadOnly = true;
             // 
             // Form1
             // 
@@ -105,6 +136,10 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.DataGridView dataGridView1;
         private System.Windows.Forms.DataGridViewTextBoxColumn Address;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Status;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Port80;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Port8080;
+        private System.Windows.Forms.DataGridViewTextBoxColumn RoundTrip;
     }
 }
 
