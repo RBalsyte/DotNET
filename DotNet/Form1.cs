@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -25,7 +20,7 @@ namespace DotNet
 
             int workerThreads;
             int portThreads;
-            System.Threading.ThreadPool.GetMaxThreads(out workerThreads, out portThreads);
+            ThreadPool.GetMaxThreads(out workerThreads, out portThreads);
             Console.WriteLine("Maximum Worker Thread Count = " + workerThreads);
             Console.WriteLine("Maximum Completion Port Thread Count = " + portThreads);
             statusMaxWorkerThreads.Text = workerThreads.ToString();
@@ -82,44 +77,43 @@ namespace DotNet
                     {
                         pingAndCheckPort(addresses[i].Trim(), i, po);
                     });
+
+                    // All addresses were invalid or exited without being cancelled
+                    updateAvailableThreadCount(true);
                 }
                 catch (OperationCanceledException)
                 {
                     // Ping cancelled -> all running threads are stopped -> update GUI
-                    BeginInvoke(new MethodInvoker(() =>
-                    {
-                        pingButton.Enabled = true;
-
-                        int workerThreads;
-                        int portThreads;
-                        System.Threading.ThreadPool.GetAvailableThreads(out workerThreads, out portThreads);
-                        statusAvailableWorkerThreads.Text = workerThreads.ToString();
-                        statusAvailablePortThreads.Text = portThreads.ToString();
-                    }));
+                    updateAvailableThreadCount(true);
                 }
             }).Start();
         }
 
         private void pingAndCheckPort(string address, int row, ParallelOptions po)
         {
+            if (string.IsNullOrEmpty(address) || address.Length > 255)
+            {
+                // Update GUI and stop pinging the invalid address
+                BeginInvoke(new MethodInvoker(() =>
+                {
+                    Console.WriteLine("Invalid address!");
+                    dataGridView1.Rows[row].Cells[1].Value = "Invalid address";
+                    dataGridView1.Update();
+                }));
+
+                return;
+            }
+
             Ping pinger = new Ping();
             PingReply replyer;
 
             try
             {
-                bool checkedPorts = false;
+                bool portsChecked = false;
 
                 while (!po.CancellationToken.IsCancellationRequested)
                 {
-                    // Update available thread count in the GUI
-                    BeginInvoke(new MethodInvoker(() =>
-                    {
-                        int workerThreads;
-                        int portThreads;
-                        System.Threading.ThreadPool.GetAvailableThreads(out workerThreads, out portThreads);
-                        statusAvailableWorkerThreads.Text = workerThreads.ToString();
-                        statusAvailablePortThreads.Text = portThreads.ToString();
-                    }));
+                    updateAvailableThreadCount(false);
 
                     replyer = pinger.Send(address);
 
@@ -132,11 +126,11 @@ namespace DotNet
                         dataGridView1.Rows[row].Cells[4].Value = replyer.RoundtripTime.ToString();
                     }
 
-                    if (replyer.Status == IPStatus.Success && !checkedPorts)
+                    if (replyer.Status == IPStatus.Success && !portsChecked)
                     {
                         dataGridView1.Rows[row].Cells[2].Value = checkPort(address, 80) ? "Open" : "Closed";
                         dataGridView1.Rows[row].Cells[3].Value = checkPort(address, 8080) ? "Open" : "Closed";
-                        checkedPorts = true;
+                        portsChecked = true;
                     }
 
                     // Wait before checking again
@@ -151,7 +145,7 @@ namespace DotNet
             }
             catch (PingException)
             {
-                // Update GUI and stop the pinging the invalid address
+                // Update GUI and stop pinging the invalid address
                 BeginInvoke(new MethodInvoker(() =>
                 {
                     Console.WriteLine("Invalid address!");
@@ -204,6 +198,23 @@ namespace DotNet
             {
                 startPing();
             }
+        }
+
+        private void updateAvailableThreadCount(bool resetButton)
+        {
+            BeginInvoke(new MethodInvoker(() =>
+            {
+                if (resetButton)
+                {
+                    pingButton.Enabled = true;
+                }
+
+                int workerThreads;
+                int portThreads;
+                ThreadPool.GetAvailableThreads(out workerThreads, out portThreads);
+                statusAvailableWorkerThreads.Text = workerThreads.ToString();
+                statusAvailablePortThreads.Text = portThreads.ToString();
+            }));
         }
     }
 }
